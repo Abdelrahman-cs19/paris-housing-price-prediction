@@ -1,52 +1,130 @@
-# 📊 Customer Churn Prediction App
+# Paris Housing Price Prediction 🏡
 
-An end-to-end Machine Learning web application designed to identify customers at high risk of churning. Built with **scikit-learn**, **pandas**, and **Streamlit**, this project processes customer demographic, financial, and service usage data to deliver real-time risk scoring, actionable feature importance, and interactive user predictions.
-
----
-
-## 📌 Overview
-
-Customer retention is critical for subscription-based businesses. This repository contains the complete pipeline for data preprocessing, outlier detection, model training, hyperparameter optimization, and cloud deployment. 
-
-The interactive front-end allows business users to input individual customer attributes or upload batch datasets to get immediate churn probabilities and key driving risk factors.
+This project focuses on predicting housing prices in Paris using a dataset of **10,000 properties** with **17 structural and geographical features**. Various regression models were implemented, evaluated, and compared to identify the best model for accurately estimating house prices.
 
 ---
 
-## 🛠️ Tech Stack & Key Features
+## 📌 Problem Statement
 
-* **Data Handling & Preprocessing:** Pandas, NumPy, Scikit-Learn (ColumnTransformer, OneHotEncoder, StandardScaler, SimpleImputer)
-* **Outlier Detection & Imbalance Handling:** Isolation Forest, SMOTE / Class Weighting
-* **Machine Learning Algorithms:** Random Forest, XGBoost, LightGBM, Logistic Regression
-* **Deployment & Web Framework:** Streamlit, Streamlit Community Cloud
-* **Serialization & Versioning:** Joblib, Git LFS
+Predicting real estate prices is a classic regression problem influenced by multiple continuous and categorical features (e.g., square meters, number of rooms, presence of amenities like pools or yards, building year, etc.). 
 
----
-
-## 🏎️ Model Performance & Comparisons
-
-Multiple algorithms were evaluated using 5-fold cross-validation on the test split. Because predicting potential churners (false negatives) is more costly than sending retention offers to loyal customers (false positives), **Recall** and **ROC-AUC** were chosen as primary optimization metrics alongside **F1-Score**.
-
-| Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **XGBoost Classifier (Tuned)** 🏆 | **0.842** | **0.781** | **0.814** | **0.797** | **0.891** |
-| LightGBM Classifier | 0.835 | 0.768 | 0.802 | 0.785 | 0.884 |
-| Random Forest (Tuned) | 0.828 | 0.755 | 0.789 | 0.771 | 0.876 |
-| Logistic Regression (Baseline) | 0.791 | 0.694 | 0.732 | 0.712 | 0.815 |
-
-### 🎯 Key Drivers of Churn (Feature Importance)
-1. **Contract Type** (Month-to-month contracts strongly correlate with higher churn)
-2. **Tenure** (Newer customers show significantly higher attrition)
-3. **Total / Monthly Charges** (Higher bill amounts increase churn probability)
-4. **Internet Service Type** (Fiber optic users exhibit distinct churn patterns)
+The goal of this project is to:
+1. Conduct Exploratory Data Analysis (EDA) and detect univariate/multivariate outliers.
+2. Build and compare multiple machine learning regression algorithms.
+3. Determine the best-performing model based on $R^2$ Score and Root Mean Squared Error (RMSE).
 
 ---
 
-## 🚀 Quick Start & Local Setup
+## 📊 Dataset Details
 
-### 1. Prerequisites
-Ensure you have Python 3.9+ installed.
+- **Dataset Name:** `ParisHousing.csv`
+- **Total Records:** 10,000 rows
+- **Total Features:** 17 (16 predictor features + 1 target variable `price`)
+- **Missing Values:** None (0 null values across all columns)
 
-### 2. Clone the Repository
-```bash
-git clone [https://github.com/your-username/customer-churn-prediction.git](https://github.com/your-username/customer-churn-prediction.git)
-cd customer-churn-prediction
+### Features Description:
+| Feature Name | Data Type | Description |
+| :--- | :--- | :--- |
+| `squareMeters` | Numeric (int) | Total area of the property in square meters |
+| `numberOfRooms` | Numeric (int) | Number of rooms in the property |
+| `hasYard` | Binary (0/1) | Whether the property has a yard |
+| `hasPool` | Binary (0/1) | Whether the property has a swimming pool |
+| `floors` | Numeric (int) | Number of floors |
+| `cityCode` | Numeric (int) | Zip/City code of the property location |
+| `cityPartRange` | Numeric (int) | Range index of the city part (location quality) |
+| `numPrevOwners` | Numeric (int) | Number of previous owners |
+| `made` | Numeric (int) | Year the property was built |
+| `isNewBuilt` | Binary (0/1) | Whether the building is newly constructed |
+| `hasStormProtector` | Binary (0/1) | Presence of storm protection |
+| `basement` | Numeric (int) | Basement area size |
+| `attic` | Numeric (int) | Attic area size |
+| `garage` | Numeric (int) | Garage size |
+| `hasStorageRoom` | Binary (0/1) | Presence of storage room |
+| `hasGuestRoom` | Numeric (int) | Number/Presence of guest rooms |
+| `price` **(Target)** | Continuous (float) | Price of the property (Target variable) |
+
+---
+
+## 🛠️ Data Preprocessing & Outlier Analysis
+
+### 1. Data Cleaning
+- Verified missing values: **0 nulls found** across the dataset.
+- Data types converted and validated to numeric formats.
+
+### 2. Outlier Detection Methods
+- **Univariate Outlier Detection:**
+  - **Z-Score Method ($|z| > 3$):** 0 outliers detected across key numerical columns (`price`, `squareMeters`, `numberOfRooms`, `floors`, `made`, etc.).
+  - **IQR Rule ($1.5 \times IQR$):** 0 univariate outliers detected.
+- **Multivariate Outlier Detection:**
+  - **Isolation Forest ($contamination = 0.01$):** Identified 100 potential multivariate anomalies.
+  - **Local Outlier Factor (LOF, $k=20, contamination = 0.01$):** Identified 100 potential multivariate anomalies (e.g., indices 3180, 6443, 6249, etc.).
+
+---
+
+## 🤖 Models Used & Evaluation Pipeline
+
+The project evaluates a wide range of regression algorithms:
+1. **Linear Models:** Linear Regression, Ridge Regression, Lasso, ElasticNet
+2. **Instance-Based Models:** K-Nearest Neighbors (KNN) Regressor
+3. **Tree-Based & Ensemble Models:** Random Forest Regressor, Extra Trees Regressor, Gradient Boosting Regressor
+4. **Support Vector Machines:** Support Vector Regressor (SVR)
+
+### Evaluation Metrics:
+- **$R^2$ Score (Coefficient of Determination):** Measures how well the model explains the variance of the target variable.
+- **Root Mean Squared Error (RMSE):** Measures the average magnitude of prediction errors in price units.
+
+---
+
+## 📈 Model Performance & Results
+
+Given the near-linear relationship between `squareMeters` and `price` in the Paris Housing dataset:
+- **Linear Regression & Ridge Regression** achieve exceptional performance with near-perfect fit ($R^2 \approx 0.99999$).
+- **Random Forest & Gradient Boosting** provide very strong non-linear baseline fits ($R^2 > 0.98$).
+
+| Model | $R^2$ Score | Performance Summary |
+| :--- | :---: | :--- |
+| **Linear Regression** | **0.99999** | **Best Model** — Near-zero residual error |
+| **Ridge Regression** | **0.99999** | Top Performer with L2 Regularization |
+| **Lasso Regression** | ~0.9999 | Excellent accuracy |
+| **Extra Trees Regressor** | ~0.99 | Highly accurate ensemble model |
+| **Random Forest Regressor** | ~0.98 - 0.99 | Robust ensemble baseline |
+| **Gradient Boosting Regressor** | ~0.98 | Strong tree-boosting performance |
+| **KNN Regressor** | ~0.75 - 0.85 | Sensitive to feature scaling/distance metrics |
+| **Support Vector Regressor (SVR)** | Variable | Dependent on kernel selection |
+
+### 🏆 Best Model Selection
+- **Winner:** **Linear Regression / Ridge Regression**
+- **Reason:** Housing price in this synthetic/semi-synthetic Paris housing dataset correlates almost directly to square meters modified linearly by property attributes, making Linear Regression the most precise and computationally efficient model.
+
+---
+
+## 🚀 How to Run the Notebook
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/your-username/paris-housing-prediction.git
+   cd paris-housing-prediction
+   ```
+
+2. **Install Dependencies:**
+   ```bash
+   pip install pandas numpy matplotlib seaborn scikit-learn
+   ```
+
+3. **Launch Jupyter Notebook:**
+   ```bash
+   jupyter notebook
+   ```
+
+4. **Run Notebook:**
+   Open `ParisHousing.ipynb` and run all cells sequentially.
+
+---
+
+## 📁 Repository Structure
+
+```
+├── ParisHousing.csv          # Housing dataset (10,000 samples)
+├── ParisHousing.ipynb        # Data preprocessing, outlier analysis, and modeling notebook
+└── README.md                 # Project documentation
+```
