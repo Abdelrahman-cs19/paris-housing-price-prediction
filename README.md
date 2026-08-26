@@ -96,30 +96,7 @@ Given the near-linear relationship between `squareMeters` and `price` in the Par
 - **Winner:** **Linear Regression / Ridge Regression**
 - **Reason:** Housing price in this synthetic/semi-synthetic Paris housing dataset correlates almost directly to square meters modified linearly by property attributes, making Linear Regression the most precise and computationally efficient model.
 
----
 
-## 🚀 How to Run the Notebook
-
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/your-username/paris-housing-prediction.git
-   cd paris-housing-prediction
-   ```
-
-2. **Install Dependencies:**
-   ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn
-   ```
-
-3. **Launch Jupyter Notebook:**
-   ```bash
-   jupyter notebook
-   ```
-
-4. **Run Notebook:**
-   Open `ParisHousing.ipynb` and run all cells sequentially.
-
----
 
 ## 📁 Repository Structure
 
